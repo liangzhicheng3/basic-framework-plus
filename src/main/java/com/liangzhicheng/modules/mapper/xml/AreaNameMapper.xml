@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liangzhicheng.modules.mapper.IAreaNameMapper">
+
+    <resultMap id="areaNameMap" type="com.liangzhicheng.modules.entity.AreaNameEntity">
+        <result property="lang" column="lang"/>
+        <result property="areaName" column="area_name"/>
+        <result property="areaCode" column="area_code"/>
+        <result property="type" column="type"/>
+        <result property="isEdit" column="is_edit"/>
+        <result property="remarks" column="remarks"/>
+
+        <result property="areaId" column="area_id"/>
+        <result property="areaLevel" column="area_level"/>
+    </resultMap>
+
+    <select id="listArea" resultType="java.util.Map" resultMap="areaNameMap">
+        SELECT
+               ac.area_id,
+               ac.area_level,
+               an.area_name,
+               an.area_code
+        FROM area_code ac
+        INNER JOIN area_name an
+        ON ac.area_code = an.area_code
+        <where>
+            1 = 1
+            AND an.lang = 'zh_CN'
+            AND ac.area_level = #{areaLevel}
+            <if test="areaId != null and areaId != ''">
+                AND ac.area_id != #{areaId}
+                AND SUBSTRING(ac.area_id, 1, #{length}) = #{areaId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getArea" resultType="java.util.Map" resultMap="areaNameMap">
+        SELECT
+               an1.area_name,
+               an1.area_code
+        FROM area_name an1
+        INNER JOIN area_name an2
+        ON an1.area_code = an2.area_code
+        <where>
+            1 = 1
+            AND an1.lang = 'zh_CN';
+            AND (an2.area_name = #{country} OR an2.area_name = #{province} OR an2.area_name = #{city})
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,115 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: basic-framework-plus
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/basic_framework_plus?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    username: root
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    initial-size: 3 #初始化时建立物理连接个数
+    min-idle: 3 #最小连接池数量
+    max-active: 15 #最大连接池数量
+    max-wait: 5000 #获取连接时最大等待时间
+    time-between-eviction-runs-millis: 90000 #连接有效性检测时间
+    min-evictable-idle-time-millis: 1800000 #连接保持空闲而不被驱逐的最小时间
+    validation-query: SELECT 1 FROM DUAL #用来检测连接是否有效的sql
+    test-while-idle: true #建议配置为true，申请连接时检测，如果空闲时间大于timeBetweenEvictionRunMills，执行validationQuery检测连接是否有效
+    test-on-borrow: false #申请连接时执行validationQuery检测连接是否有效
+    test-on-return: false #归还连接时执行validationQuery检测连接是否有效
+    filters: stat #配置监控统计拦截的filters（监控统计:stat 日志:log4j 防御sql注入:wall ）
+    log-slow-sql: true #慢查询配置
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+#    password: 011556ffd7b644589e796a368a122d57
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+  #处理第一次请求访问延迟问题
+  mvc:
+    servlet:
+      load-on-startup: 1
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
+mybatis-plus:
+  check-config-location: true
+  configuration:
+    map-underscore-to-camel-case: true
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+mvc:
+  static:
+    dirs: /css,/js,/upload
+    prefix: http://127.0.0.1:${server.port}${server.servlet.context-path}
+
+wechat:
+  user:
+    app_id: wxf9e92651a1e6fa96 #微信支付申请成功后在邮件中的APPID
+    secret: 590cb4cc409a0eb870435346ddddb983
+    grant_type: authorization_code
+    auth_url: https://api.weixin.qq.com/sns/oauth2/access_token?
+    user_info_url: https://api.weixin.qq.com/sns/userinfo?
+    login_url: https://api.weixin.qq.com/sns/jscode2session
+  pay:
+    app_id:  #微信支付申请成功后在邮件中的APPID
+    secret:  #密钥(在商户平台设置，登录后——账户中心——账户设置——API安全中设置)
+    mch_id:  #微信支付商户号
+    pay_sign:  #密钥(在商户平台设置，登录后——账户中心——账户设置——API安全中设置)
+    trade_type_mini: JSAPI #交易类型
+    trade_type_app: APP #交易类型
+    request_url: https://api.mch.weixin.qq.com/pay/unifiedorder #统一下单url
+    notify_url_mini: http://127.0.0.1:8081/pay/wc/mini/notify_url #微信支付异步通知支付结果url（小程序）
+    notify_url_app: http://127.0.0.1:8081/pay/wc/app/notify_url #微信支付异步通知支付结果url（APP）
+    order_query_url: https://api.mch.weixin.qq.com/pay/orderquery #订单查询url
+    cert_name: /cert/apiclient_cert.p12 #退款证书
+    refund_url: https://api.mch.weixin.qq.com/secapi/pay/refund #退款url
+    refund_query_url: https://api.mch.weixin.qq.com/pay/refundquery #退款查询url
+
+alipay:
+  app_id:  #开放平台——右上角主账号——密钥管理
+  merchant_private_key:  #支付宝的密钥，生成方式文档：https://docs.open.alipay.com/291/105971，https://doc.open.alipay.com/doc2/detail.htm?spm=a219a.7629140.0.0.nBDxfy&treeId=58&articleId=103242&docType=1
+  alipay_public_key:  #支付宝的公钥，查看地址：https://openhome.alipay.com/platform/keyManage.htm?keyType=partner
+  notify_url_app: http://127.0.0.1:8081/pay/alipay/app/notify_url  #支付宝异步通知支付结果url（APP）
+  notify_url_web: http://127.0.0.1:8081/pay/alipay/web/notify_url  #支付宝异步通知支付结果url（网页）
+  return_url: http://127.0.0.1:8081/pay/web/alipay/return_url  #支付宝同步通知url
+  sign_type: RSA2  #签名方式
+  charset: utf-8  #字符编码格式
+  gateway_url: https://openapi.alipaydev.com/gateway.do  #支付宝网关
+
+jwt:
+  suffix-mini: -MINI #客户端类型
+  token-key-map: jwt_token_key_map #token缓存key
+  secret: 3MZq0BYyGcXYoXjhS4QbAM+2YdlLCwKRr2gvVJOJ+LIANGZHICHENG #生成token时加密密文
+
+aes:
+  algorithm: AES/ECB/PKCS5Padding #算法
+  secret: 104982ebf97f44b5 #密钥（需要前端和后端保持一致）
+
+sms: #云之讯
+  sid:  #用户的账号唯一标识；位置：开发者控制台——短信——API接口对接
+  token:  #用户密钥；位置：开发者控制台——短信——API接口对接
+  app-id:  #创建应用时系统分配的唯一标示；位置：开发者控制台——短信——API接口对接 或者 获取路径后台→应用管理→点击需要对接应用，查看appId
+  template-id:  #后台短信产品——选择接入的应用——短信模板——模板ID，查看该模板ID
+  url: https://open.ucpaas.com/ol/sms/sendsms #请求地址
+
+swagger:
+  application-name: ${spring.application.name}
+  application-version: 1.0.0
+  application-description: 基础架构接口文档
