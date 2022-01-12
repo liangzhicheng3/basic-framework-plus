@@ -1,6 +1,8 @@
 package com.liangzhicheng.config.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.support.http.StatViewServlet;
+import com.alibaba.druid.support.http.WebStatFilter;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
@@ -10,17 +12,23 @@ import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.liangzhicheng.common.utils.PrintUtil;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 数据库连接配置类
@@ -34,11 +42,23 @@ public class DataSourceConfig {
      * mapper的xml位置
      */
     public static final String[] DATASOURCE_MAPPER_LOACTIONS = {"classpath*:com/liangzhicheng/**/*Mapper.xml"};
+    
+    @Value("${spring.datasource.username}")
+    private String username;
+    @Value("${spring.datasource.password}")
+    private String password;
+    @Value("${spring.datasource.log-slow-sql}")
+    private String logSlowSql;
 
     @ConfigurationProperties(prefix = "spring.datasource")
     @Bean
     public DataSource druidDataSource(){
         return new DruidDataSource();
+    }
+    
+    @Bean
+    public DataSourceTransactionManager transactionManagerManager(DataSource dataSource) {
+        return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean(name = "sqlSessionFactory")
@@ -58,6 +78,39 @@ public class DataSourceConfig {
         config.setDbConfig(dbConfig);
         bean.setGlobalConfig(config);
         return bean.getObject();
+    }
+    
+    /**
+     * 注册druid过滤器
+     * @return FilterRegistrationBean
+     */
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() {
+        FilterRegistrationBean bean = new FilterRegistrationBean();
+        bean.setFilter(new WebStatFilter());
+        bean.addUrlPatterns("/*");
+        bean.addInitParameter("exclusions", "*.html,*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
+        bean.addInitParameter("profileEnable", "true");
+        bean.addInitParameter("principalCookieName", "USER_COOKIE");
+        bean.addInitParameter("principalSessionName", "USER_SESSION");
+        return bean;
+    }
+
+    /**
+     * 注册druid的统计Servlet
+     * @return ServletRegistrationBean
+     */
+    @Bean
+    public ServletRegistrationBean druidServlet() {
+        ServletRegistrationBean reg = new ServletRegistrationBean();
+        reg.setServlet(new StatViewServlet());
+        reg.addUrlMappings("/druid/*");
+        Map<String, Object> initParams = new HashMap<>();
+        initParams.put("loginUsername", username);
+        initParams.put("loginPassword", password);
+        initParams.put("logSlowSql", logSlowSql);
+        reg.setInitParameters(initParams);
+        return reg;
     }
 
     /**
