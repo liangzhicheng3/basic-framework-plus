@@ -16,6 +16,7 @@ import com.liangzhicheng.common.push.properties.Push;
 import com.liangzhicheng.common.response.ResponseResult;
 import com.liangzhicheng.common.utils.JSONUtil;
 import com.liangzhicheng.common.utils.ValidateUtil;
+import com.liangzhicheng.common.utils.WeChatUtil;
 import com.liangzhicheng.modules.entity.SysConfigEntity;
 import com.liangzhicheng.modules.service.ISysConfigService;
 import io.swagger.annotations.Api;
@@ -23,6 +24,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.UUID;
 
 @Api(value="ConfigController", tags={"配置相关控制器"})
 @RestController
@@ -33,7 +38,7 @@ public class ConfigController extends BaseController {
     private ISysConfigService configService;
 
     @ApiOperation(value = "保存云存储配置")
-    @GetMapping(value = "/saveCloud")
+    @PostMapping(value = "/saveCloud")
     public ResponseResult save(@RequestBody CloudStorage cloudStorage){
         ValidateUtil.getInstance().validate(cloudStorage);
         switch(cloudStorage.getType()){
@@ -58,7 +63,7 @@ public class ConfigController extends BaseController {
     }
 
     @ApiOperation(value = "保存推送配置")
-    @GetMapping(value = "/savePush")
+    @PostMapping(value = "/savePush")
     public ResponseResult save(@RequestBody Push push){
         ValidateUtil.getInstance().validate(push);
         switch(push.getType()){
@@ -96,6 +101,24 @@ public class ConfigController extends BaseController {
                 return buildSuccessInfo(JSONUtil.parseObject(config.getValue(), Push.class));
         }
         return buildFailedInfo(ApiConstant.BASE_FAIL_CODE);
+    }
+
+    @ApiOperation(value = "获取js-sdk参数")
+    @GetMapping(value = "/getJs/{url}")
+    public ResponseResult getJs(@PathVariable("url") String url) {
+        Long timestamp = new Date().getTime() / 1000;
+        String nonceStr = UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(16);
+        SortedMap<String, Object> map = new TreeMap<>();
+        map.put("noncestr", nonceStr);
+        map.put("jsapi_ticket", WeChatUtil.getJsapiTicket());
+        map.put("timestamp", timestamp);
+        map.put("url", url);
+        map.put("signature", WeChatUtil.signSHA1(map));
+        map.put("appId", "公众号appid");
+        return buildSuccessInfo(map);
     }
 
 }
