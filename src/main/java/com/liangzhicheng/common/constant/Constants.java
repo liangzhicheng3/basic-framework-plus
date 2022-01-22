@@ -15,6 +15,9 @@ public interface Constants {
     String PERM_MAP_KEY = "perm_map_key"; //权限Map键值
 
     String USER_INFO = "user_info"; //用户信息缓存key
+    
+    String WECHAT_ACCESS_TOKEN_KEY = "wechat_access_token_key"; //微信accessToken key
+    String WECHAT_TICKET_KEY = "wechat_access_token_key"; //微信ticket key
 
     /**
      * 配置相关常量
