@@ -65,7 +65,9 @@ wechat:
     secret: 590cb4cc409a0eb870435346ddddb983
     grant_type: authorization_code
     auth_url: https://api.weixin.qq.com/sns/oauth2/access_token?
+    token_url: https://api.weixin.qq.com/cgi-bin/token?
     user_info_url: https://api.weixin.qq.com/sns/userinfo?
+    ticket_url: https://api.weixin.qq.com/cgi-bin/ticket/getticket?
     login_url: https://api.weixin.qq.com/sns/jscode2session
   pay:
     app_id:  #微信支付申请成功后在邮件中的APPID
