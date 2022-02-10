@@ -108,7 +108,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(properties.getApplicationName())
                 .description(properties.getApplicationDescription())
-                .contact(new Contact("liangzhicheng", "https://gitee.com/liangzhicheng3", "yichengc3@163.com"))
+                .contact(new Contact("liangzhicheng", "https://github.com/liangzhicheng3", "yichengc3@163.com"))
                 .version(properties.getApplicationVersion())
                 .build();
     }
